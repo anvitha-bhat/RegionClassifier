@@ -22,18 +22,36 @@ def fetch_source(url):
     return page
 
 ###parsing json format to get objects
-def jsonparse( data ):
+def jsonparse( data,name,typ):
     data = json.loads(data)
     results = data["results"]
     for x in results:
-        names_list.append(str(x["name"]))
-        type_list.append(x["types"])
-        print(names_list)
-        print(type_list)
+        data_string = name
+        data_string = data_string +","+ x["name"].encode("utf-8","ignore")+","+typ
+        typelist = []
+        for i in  x["types"]:
+            typelist.append(i.encode("utf-8","ignore"))
+        for i in MapList:
+            if i in typelist:
+                data_string = data_string + ",1"
+            else:
+                data_string = data_string + ",0"
+        #print(data_string)
+        with open("out.txt", "a") as myfile:
+            myfile.write(data_string+"\n")
 
-def extract(name,lat,lng):
-    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=500&key="
+
+def extract(lat,lng,name,typ):
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+str(lat)+","+str(lng)+"&radius=500&key="
     print(url+KEY)
     data_x = fetch_source(url+KEY)
-    print(data_x)
-    jsonparse(str(data_x))
+    print("fetching done.")
+    jsonparse(str(data_x),name,typ)
+    print("parsing done.")
+
+def run_extract():
+    with open("in.txt") as f:
+        content = f.readlines()
+        for line in content:
+            line = line.split(",")
+            extract(line[0],line[1],line[2],line[3].strip())
