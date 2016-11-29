@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,9 +36,6 @@
       color: #fff;
       padding: 100px 25px;
       font-family: Montserrat, sans-serif;
-  }
-  .container-fluid {
-      padding: 60px 50px;
   }
   .bg-grey {
       background-color: #f6f6f6;
@@ -189,57 +187,102 @@
     }
   }
   </style>
+
+  <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+
+window.onload = function () {
+	var chart = new CanvasJS.Chart("chartContainer", {
+		theme: "theme2",//theme1
+		title:{
+			text: "Basic Column Chart - CanvasJS"
+		},
+		animationEnabled: false,   // change to true
+		data: [
+		{
+			// Change type to "bar", "area", "spline", "pie",etc.
+			type: "column",
+			dataPoints: [
+            { label: "{{food_map_type.0}}",  y: 10  },
+            {label: "{{food_map_type.1}}",  y: 10  },
+            {label: "{{food_map_type.2}}",  y: 10  },
+            {label: "{{food_map_type.3}}",  y: 10  },
+            {label: "{{food_map_type.4}}",  y: 10  },
+            {label: "{{food_map_type.5}}",  y: 10  },
+            {label: "{{food_map_type.6}}",  y: 10  },
+            {label: "{{food_map_type.7}}",  y: 10  },
+            {label: "{{food_map_type.8}}",  y: 10  },
+            {label: "{{food_map_type.9}}",  y: 10  },
+    	]
+		}
+		]
+	});
+	chart.render();
+}
+</script>
+
 </head>
 <body>
 
-
-<div class="jumbotron text-center">
-  <h1>Region Classifier</h1>
-  <p>Enter the place</p>
-  <br />
-  <div class="container">
-  <div class="row">
-    <form>
-        <div class="col-sm-offset-2 col-sm-6">
-          <input type="text" class="form-control" size="50" placeholder="Enter place" id="place" required>
-        </div>
-        <div class="col-sm-2">
-        <div class="input-group-btn">
-          <button type="button" onclick="getaddress()" class="btn btn-danger">Enter</button>
-        </div>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://127.0.0.1:8000">RegionClassifier</a>
       </div>
-    </form>
-    <br/>
-
-    <br />
-  </div>
-  <div class="row text-center">
-    <p>or</p>
-  </div>
-    <div class="row">
-      <form action="classify">
-          <div class="col-sm-offset-2 col-sm-3">
-              <input type="text"  class="form-control" placeholder="Enter latitude" name ="latitude" id="lat" required>
-          </div>
-          <div class="col-sm-3">
-            <input type="text" class="form-control"  placeholder="Enter longtitude" name="longtitude" id="lng" required>
-          </div>
-          <div class="col-sm-2">
-            <button type="submit" class="btn btn-danger">Enter</button>
-          </div>
-      </form>
+      <ul class="nav navbar-nav">
+      </ul>
     </div>
-  </div>
-</div>
-
-
+  </nav>
 
 <div id="googleMap" style="height:400px;width:100%;"></div>
+<br />
+  <div class="container">
+      <div class="row">
+          <div>
+            <h4>SECTOR PREDICTION : {{ sector }} (Low Accuracy)</h4>
+          </div>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="col-sm-6">
+          <h4>CLUSTER PREDICTION : CLUSTER {{ cluster }}</h4>
+          <h4>Euclidean Distance</h4>
+          <h5>CLUSTER 0: {{ cluster_dist1 }}</h5>
+          <h5>CLUSTER 1: {{ cluster_dist2 }}</h5>
+          <h5>CLUSTER 2: {{ cluster_dist3 }}</h5>
+          <h5>CLUSTER 3: {{ cluster_dist4 }}</h5>
+        </div>
+        <div class="col-sm-6">
+          <img src="{% static "kmeans.png" %}" alt="image not loaded" style="max-width:100%;"/>"
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="col-sm-5">
+          <img src="{% static "commercial.png" %}" alt="image not loaded" style="max-width:100%;"/>"
+          <h4 class="text-center">{{commercial_comment}}</h4>
+        </div>
+        <div class="col-sm-5">
+          <img src="{% static "entertainment.png" %}" alt="image not loaded" style="max-width:100%;"/>"
+          <h4 class="text-center">{{entertainment_comment}}</h4>
+        </div>
+        <div class="col-sm-5">
+          <img src="{% static "residential.png" %}" alt="image not loaded" style="max-width:100%;"/>"
+          <h4 class="text-center">{{residential_comment}}</h4>
+        </div>
+        <div class="col-sm-5">
+          <img src="{% static "industry.png" %}" alt="image not loaded" style="max-width:100%;"/>"
+          <h4 class="text-center">{{industry_comment}}</h4>
+        </div>
+      </div>
+
+      <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+
+  </div>
 <!-- Add Google Maps -->
 <script src="https://maps.googleapis.com/maps/api/js"></script>
 <script>
-var myCenter = new google.maps.LatLng(41.878114, -87.629798);
+var myCenter = new google.maps.LatLng({{lat}},{{lng}});
 
 function initialize() {
 var mapProp = {
@@ -297,27 +340,6 @@ $(document).ready(function(){
     });
   });
 })
-</script>
-<script type="text/javascript">
-
-
-var address = "new york";
-
-
-function getaddress(){
-  address = document.getElementById("place").value;
-  var geocoder = new google.maps.Geocoder();
-  geocoder.geocode( { 'address': address}, function(results, status) {
-
-    if (status == google.maps.GeocoderStatus.OK) {
-      var latitude = results[0].geometry.location.lat();
-      var longitude = results[0].geometry.location.lng();
-      window.location = "http://127.0.0.1:8000/classify?latitude="+latitude+"&longtitude="+longitude;
-    }
-  });
-
-}
-
 </script>
 
 </body>
