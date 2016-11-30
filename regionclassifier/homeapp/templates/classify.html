@@ -187,6 +187,27 @@
     }
   }
   </style>
+  <style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 
   <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script type="text/javascript">
@@ -195,7 +216,7 @@ window.onload = function () {
 	var chart = new CanvasJS.Chart("chartContainer", {
 		theme: "theme2",//theme1
 		title:{
-			text: "Basic Column Chart - CanvasJS"
+			text: "Cusine mean rating of the cluster"
 		},
 		animationEnabled: false,   // change to true
 		data: [
@@ -203,16 +224,15 @@ window.onload = function () {
 			// Change type to "bar", "area", "spline", "pie",etc.
 			type: "column",
 			dataPoints: [
-            { label: "{{food_map_type.0}}",  y: 10  },
-            {label: "{{food_map_type.1}}",  y: 10  },
-            {label: "{{food_map_type.2}}",  y: 10  },
-            {label: "{{food_map_type.3}}",  y: 10  },
-            {label: "{{food_map_type.4}}",  y: 10  },
-            {label: "{{food_map_type.5}}",  y: 10  },
-            {label: "{{food_map_type.6}}",  y: 10  },
-            {label: "{{food_map_type.7}}",  y: 10  },
-            {label: "{{food_map_type.8}}",  y: 10  },
-            {label: "{{food_map_type.9}}",  y: 10  },
+            { label: "{{food_map_type.0}}", y: {{score.0}}   },
+            {label: "{{food_map_type.1}}",  y: {{score.1}}  },
+            {label: "{{food_map_type.2}}",  y: {{score.2}}  },
+            {label: "{{food_map_type.3}}",  y: {{score.3}}  },
+            {label: "{{food_map_type.4}}",  y: {{score.4}}  },
+            {label: "{{food_map_type.5}}",  y: {{score.5}}  },
+            {label: "{{food_map_type.6}}",  y: {{score.6}}  },
+            {label: "{{food_map_type.7}}",  y: {{score.7}}  },
+            {label: "{{food_map_type.8}}",  y: {{score.8}}  },
     	]
 		}
 		]
@@ -222,7 +242,7 @@ window.onload = function () {
 </script>
 
 </head>
-<body>
+<body onload="getinfo()">
 
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
@@ -277,6 +297,17 @@ window.onload = function () {
       </div>
 
       <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+      <br/>
+      <hr/>
+      <h3>place information</h4>
+      <div id="demo">
+        <div class="row">
+          <div class="col-sm-offset-5 col-sm-4">
+            <div class="loader"></div>
+          </div>
+        </div>
+      </div>
+
 
   </div>
 <!-- Add Google Maps -->
@@ -340,6 +371,20 @@ $(document).ready(function(){
     });
   });
 })
+</script>
+
+<script>
+function getinfo() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML =this.responseText;
+    }
+  };
+
+  xhttp.open("GET", "http://127.0.0.1:8000/specific?latitude={{lat}}&longtitude={{lng}}", true);
+  xhttp.send();
+}
 </script>
 
 </body>

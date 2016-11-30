@@ -53,7 +53,7 @@ def euclideanDist(dict):
 		for x in range(0,len(MAP)):
 			dist = dist + (dict[MAP[x]]-CLUSTER[i][x])**2
 		dist_list.append(dist)
-	print(dist_list)
+		print(dist_list)
 	return dist_list
 
 def findsector(dict):
@@ -91,20 +91,33 @@ def home(request):
 	}
 	return render(request, 'home.html', context)
 
+def specify(request):
+	lat = request.GET['latitude']
+	lng = request.GET['longtitude']
+	url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+str(lat)+","+str(lng)+"&radius=1000&type=food&key="
+	print(url+KEY)
+	data_x = fetch_source(url+KEY)
+	data = json.loads(data_x)
+	print(data_x)
+	t = ""
+	for x in data["results"]:
+		t = t + x["name"] +"<br>"
+	return HttpResponse(t)
 
 def classify(request):
 	lat = request.GET['latitude']
 	lng = request.GET['longtitude']
 	dit = extract(lat,lng)
 	cluster = euclideanDist(dit)
+	print("cluster = "+ str(cluster))
 	sector = findsector(dit)
+	print("sector = "+ str(sector))
 	commercial_comment = ["Not Commercial Region","Likely commercial","Region good for commerce","Region good for commerce"]
 	residential_comment = ["Very likely Residential Region","Not Residential","Residential Region","Residential Region"]
 	industry_comment = ["Might be Industrial/Residential","Not Industrial","Might be Industrial/Residential","Not Industrial"]
 	entertainment_comment = ["Very likely a region of entertainment(crowd pulling)","Very likely a region of entertainment(crowd pulling)","not an entertainment region","partially entertainment region"]
 	it_comment = ["Can be IT region","Not IT region","IT region probable","mostly not IT region"]
 	cluster_index = cluster.index(min(cluster))
-
 	context = {
 		'cluster':cluster_index,
 		'lat':lat,
@@ -118,7 +131,7 @@ def classify(request):
 		'residential_comment': residential_comment[int(cluster_index)],
 		'industry_comment': industry_comment[int(cluster_index)],
 		'entertainment_comment': entertainment_comment[int(cluster_index)],
-		'score':score,
+		'score':score[cluster_index],
 		'food_map_type':food_map_type,
 	}
 	return render(request, 'classify.html', context)
